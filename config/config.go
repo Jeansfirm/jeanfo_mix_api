@@ -6,6 +6,11 @@ import (
 	"github.com/spf13/viper"
 )
 
+type WebConfig struct {
+	Host string `mapstructure:"host"`
+	Port int    `mapstructure:"port"`
+}
+
 type DatabaseConfig struct {
 	Host     string `mapstructure:"host"`
 	Port     int    `mapstructure:"port"`
@@ -15,6 +20,7 @@ type DatabaseConfig struct {
 }
 
 type Config struct {
+	Web      WebConfig      `mapstructure:"web"`
 	Database DatabaseConfig `mapstructure:"database"`
 }
 

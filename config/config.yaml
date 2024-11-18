@@ -1,6 +1,10 @@
+web:
+  host: "0.0.0.0"
+  port: 10801
+
 database:
   host: "127.0.0.1"
   port: 3306
   username: "root"
-  password: "password"
-  dbname: "mydb"
+  password: "123456"
+  dbname: "jeanfo_mix"
