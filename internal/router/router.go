@@ -14,8 +14,10 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 	demoService := service.DemoService{DB: db}
 	demoController := controller.DemoController{Service: &demoService}
 
-	r.GET("/api/demo/hello", demoController.HelloWorld)
-	r.GET("/api/demo/records", demoController.GetDemos)
+	r.GET("/api/demos/hello", demoController.HelloWorld)
+	r.GET("/api/demos", demoController.GetDemos)
+	r.POST("/api/demos", demoController.CreateDemo)
+	r.DELETE("/api/demos/:id", demoController.DeleteDemo)
 
 	return r
 }
