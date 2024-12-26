@@ -2,7 +2,6 @@ package util
 
 import (
 	"errors"
-	"fmt"
 	"time"
 
 	"jeanfo_mix/config"
@@ -24,7 +23,7 @@ func JwtGenerateToken(data map[string]interface{}, validSeconds ...int) (string,
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	fmt.Printf("jwt token object: %v \njwt secret: %v \n\n", token, config.AppConfig.JWTSecret)
+	// fmt.Printf("jwt token object: %v \njwt secret: %v \n\n", token, config.AppConfig.JWTSecret)
 
 	return token.SignedString([]byte(config.AppConfig.JWTSecret))
 }
