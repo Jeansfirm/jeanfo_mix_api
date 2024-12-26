@@ -20,4 +20,6 @@ func TestConfig(t *testing.T) {
 	assert.NotEmpty(t, redis.Addr, "not redis configured")
 	jwtSecret := appConfig.JWTSecret
 	assert.NotEmpty(t, jwtSecret, "not jwt secret configured")
+
+	fmt.Printf("jwt secret: %v, type of %T", jwtSecret, jwtSecret)
 }
