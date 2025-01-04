@@ -1,4 +1,4 @@
-package tmp
+package util_tmp
 
 import "math/rand"
 
