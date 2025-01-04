@@ -1,3 +1,6 @@
 {
-    "window.title": "jeanfo_mix"
+    "window.title": "jeanfo_mix_api",
+    "go.toolsEnvVars": {
+        "GOPROXY": "https://mirrors.aliyun.com/goproxy/,direct"
+    }
 }

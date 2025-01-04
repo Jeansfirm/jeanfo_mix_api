@@ -58,7 +58,7 @@ func LoadConfig() {
 	viper.SetConfigType("yaml")
 	viper.AddConfigPath(exeDir + "/config")
 	viper.AddConfigPath("/home/jeanfo/workspace/releases/jeanfo_mix_api/config")
-	// viper.AddConfigPath("config")
+	viper.AddConfigPath("/Users/jeanfo/workspace/jeanfo_mix_api/config")
 
 	if err := viper.ReadInConfig(); err != nil {
 		log.Fatalf("Error reading config file: %v", err)
