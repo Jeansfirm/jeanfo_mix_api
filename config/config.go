@@ -47,6 +47,14 @@ type Config struct {
 
 var AppConfig *Config
 
+// GetConfig 获取配置实例
+func GetConfig() *Config {
+	if AppConfig == nil {
+		LoadConfig()
+	}
+	return AppConfig
+}
+
 func LoadConfig() {
 	ex, err := os.Executable()
 	if err != nil {
