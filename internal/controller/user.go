@@ -3,7 +3,7 @@ package controller
 import (
 	"jeanfo_mix/internal/model"
 	user_service "jeanfo_mix/internal/service/user"
-	"jeanfo_mix/util"
+	reponse_util "jeanfo_mix/util/response"
 
 	"github.com/gin-gonic/gin"
 )
@@ -35,35 +35,35 @@ func (uc *UserController) Register(ctx *gin.Context) {
 	var req RegisterReq
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		msg := "params error: " + err.Error()
-		util.NewResponse(ctx).SetMsg(msg).FailBadRequest()
+		reponse_util.NewResponse(ctx).SetMsg(msg).FailBadRequest()
 		return
 	}
 
 	user, err := uc.Service.Register(req.RType, req.UserName, req.Password, "", "", "", "")
 	if err != nil {
 		msg := "register fail: " + err.Error()
-		util.NewResponse(ctx).SetMsg(msg).FailBadRequest()
+		reponse_util.NewResponse(ctx).SetMsg(msg).FailBadRequest()
 		return
 	}
 
-	util.NewResponse(ctx).SetMsg("register success").SetData(user).Success()
+	reponse_util.NewResponse(ctx).SetMsg("register success").SetData(user).Success()
 }
 
 func (uc *UserController) Login(ctx *gin.Context) {
 	var req LoginReq
 	err := ctx.ShouldBindJSON(&req)
 	if err != nil {
-		util.NewResponse(ctx).SetMsg("params error: " + err.Error()).FailBadRequest()
+		reponse_util.NewResponse(ctx).SetMsg("params error: " + err.Error()).FailBadRequest()
 		return
 	}
 	user, clientToken, err := uc.Service.Login(req.LType, req.UserName, req.Password)
 	if err != nil {
-		util.NewResponse(ctx).SetMsg("login fail: " + err.Error()).FailBadRequest()
+		reponse_util.NewResponse(ctx).SetMsg("login fail: " + err.Error()).FailBadRequest()
 		return
 	}
 
 	resp := LoginResp{Token: clientToken, User: *user}
-	util.NewResponse(ctx).SetMsg("login success").SetData(resp).Success()
+	reponse_util.NewResponse(ctx).SetMsg("login success").SetData(resp).Success()
 }
 
 func (uc *UserController) Logout(ctx *gin.Context) {

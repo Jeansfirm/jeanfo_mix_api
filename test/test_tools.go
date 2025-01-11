@@ -3,7 +3,7 @@ package test
 import (
 	"encoding/json"
 	"io"
-	"jeanfo_mix/util"
+	reponse_util "jeanfo_mix/util/response"
 	"net/http"
 	"net/http/httptest"
 	"sync"
@@ -52,7 +52,7 @@ func (tt *HttpCall) Run() {
 	GTestTool.router.ServeHTTP(tt.Resp, tt.Req)
 }
 
-type RespData = util.InsideData
+type RespData = reponse_util.ResponsePayload
 
 func (tt *HttpCall) GetRespData() *RespData {
 	var respData RespData
