@@ -1,6 +1,7 @@
 package test
 
 import (
+	"errors"
 	"jeanfo_mix/config"
 	"jeanfo_mix/internal/model"
 	"jeanfo_mix/internal/router"
@@ -18,11 +19,20 @@ func SetupTestDB(t *testing.T) *gorm.DB {
 		t.Fatalf("Failed to connect to test datase: %v", err)
 	}
 
-	if err := db.AutoMigrate(&model.Demo{}); err != nil {
-		t.Fatalf("Failed to migrate test database: %v", err)
-	}
+	model.MigrateDB(db)
 
 	return db
+}
+
+func SetupTestDBV2() (*gorm.DB, error) {
+	db, err := gorm.Open(sqlite.Open("file::memory:?cache=shared"), &gorm.Config{})
+	if err != nil {
+		return nil, errors.New("Failed to connect to test datase: " + err.Error())
+	}
+
+	model.MigrateDB(db)
+
+	return db, nil
 }
 
 func SetupTestRouter(db *gorm.DB) *gin.Engine {

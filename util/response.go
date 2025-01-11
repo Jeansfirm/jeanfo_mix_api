@@ -6,14 +6,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type InsideData struct {
+	Code int    `json:"Code"`
+	Msg  string `json:"Msg"`
+	Data any    `json:"Data"`
+}
+
 type Response struct {
 	ginCtx *gin.Context
 
 	HttpCode int
-
-	Code int
-	Msg  string
-	Data interface{}
+	InsideData
 }
 
 func NewResponse(ctx *gin.Context) *Response {
@@ -25,13 +28,7 @@ func NewResponse(ctx *gin.Context) *Response {
 func (r *Response) Send() *Response {
 	// todo data判断转换成json
 
-	r.ginCtx.JSON(r.HttpCode,
-		gin.H{
-			"Code": r.Code,
-			"Msg":  r.Msg,
-			"Data": r.Data,
-		},
-	)
+	r.ginCtx.JSON(r.HttpCode, r.InsideData)
 	return r
 }
 
