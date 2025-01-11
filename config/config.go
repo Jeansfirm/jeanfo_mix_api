@@ -73,6 +73,6 @@ func LoadConfig() {
 	}
 
 	if err := viper.Unmarshal(&AppConfig); err != nil {
-		log.Fatalf("Effor unmarshaling config: %v", err)
+		log.Fatalf("Error unmarshaling config: %v", err)
 	}
 }

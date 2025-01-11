@@ -1,35 +1,60 @@
 package controller
 
-// import (
-// 	"net/http"
+import (
+	user_service "jeanfo_mix/internal/service/user"
+	"jeanfo_mix/util"
 
-// 	"jeanfo_mix/internal/service"
+	"github.com/gin-gonic/gin"
+)
 
-// 	"github.com/gin-gonic/gin"
-// 	"gorm.io/gorm"
-// )
+type UserController struct {
+	Service *user_service.UserService
+}
 
-// // GetUserInfoHandler 获取用户信息接口
-// func GetUserInfoHandler(c *gin.Context) {
-// 	token, _ := c.Cookie("token")
-// 	claims, err := service.ParseToken(token)
-// 	if err != nil {
-// 		c.JSON(http.StatusUnauthorized, gin.H{"error": "登录已失效"})
-// 		return
-// 	}
+type RegisterReq struct {
+	RType    user_service.RegisterType `json:"RType" bind:"required"`
+	UserName string                    `json:"UserName"`
+	Password string                    `json:"Password"`
+}
 
-// 	userID := claims["user_id"].(string)
-// 	db := c.MustGet("db").(*gorm.DB)
-// 	user, err := service.GetUserByID(db, userID)
-// 	if err != nil {
-// 		c.JSON(http.StatusNotFound, gin.H{"error": "用户不存在"})
-// 		return
-// 	}
+// auth
 
-// 	c.JSON(http.StatusOK, gin.H{
-// 		"user_id":    user.ID,
-// 		"username":   user.Username,
-// 		"provider":   user.Provider,
-// 		"created_at": user.CreatedAt,
-// 	})
-// }
+func (uc *UserController) Register(ctx *gin.Context) {
+	var req RegisterReq
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		msg := "params error: " + err.Error()
+		util.NewResponse(ctx).SetMsg(msg).FailBadRequest()
+		return
+	}
+
+	user, err := uc.Service.Register(req.RType, req.UserName, req.Password, "", "", "", "")
+	if err != nil {
+		msg := "register fail: " + err.Error()
+		util.NewResponse(ctx).SetMsg(msg).FailBadRequest()
+		return
+	}
+
+	util.NewResponse(ctx).SetMsg("register success").SetData(user).Success()
+}
+
+func (uc *UserController) Login(ctx *gin.Context) {
+
+}
+
+func (uc *UserController) Logout(ctx *gin.Context) {
+
+}
+
+func (uc *UserController) ChangePasswd(ctx *gin.Context) {
+
+}
+
+// user crud
+
+func (uc *UserController) Get(ctx *gin.Context) {
+
+}
+
+func (uc *UserController) List(ctx *gin.Context) {
+
+}

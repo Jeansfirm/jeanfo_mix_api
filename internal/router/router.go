@@ -3,6 +3,7 @@ package router
 import (
 	"jeanfo_mix/internal/controller"
 	"jeanfo_mix/internal/service"
+	user_service "jeanfo_mix/internal/service/user"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -13,25 +14,43 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 
 	demoService := service.DemoService{DB: db}
 	demoController := controller.DemoController{Service: &demoService}
+	userService := user_service.UserService{DB: db}
+	userController := controller.UserController{Service: &userService}
 
 	r.GET("/api/demos/hello", demoController.HelloWorld)
 	r.GET("/api/demos", demoController.GetDemos)
 	r.POST("/api/demos", demoController.CreateDemo)
 	r.DELETE("/api/demos/:id", demoController.DeleteDemo)
 
-	// auth
-	// authGroup := r.Group("/api/auth")
-	// {
-	// 	authGroup.POST("/register", controller.RegisterHandler)           // 用户注册
-	// 	authGroup.POST("/login", controller.LoginHandler)                 // 用户登录
-	// 	authGroup.POST("/third_party", controller.ThirdPartyLoginHandler) // 第三方登录
-	// }
+	// nologin auth
+	authGroup := r.Group("/api/auth")
+	{
+		authGroup.POST("/register", userController.Register) // 用户注册
+		authGroup.POST("/login", userController.Login)
+	}
 
-	// loginApiGroup := r.Group("/api")
+	// login auth
+	loginAuthGroup := r.Group("/api/auth")
+	// loginAuthGroup.Use(middleware.AuthMiddleware())
+	{
+		loginAuthGroup.POST("/logout", userController.Logout)
+		loginAuthGroup.POST("/change_passwd", userController.ChangePasswd)
+	}
+
+	// login auth
+	loginApiGroup := r.Group("/api")
 	// loginApiGroup.Use(middleware.AuthMiddleware()) // 需要登录态的接口
-	// {
-	// 	loginApiGroup.GET("/user/info", controller.GetUserInfoHandler) // 获取用户信息
-	// }
+
+	// user
+	{
+		loginApiGroup.GET("/user", userController.Get)  // 获取用户信息
+		loginApiGroup.GET("/users", userController.Get) // 获取用户列表
+	}
+
+	// other
+	{
+
+	}
 
 	return r
 }
