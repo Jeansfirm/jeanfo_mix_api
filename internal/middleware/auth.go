@@ -36,7 +36,7 @@ func AuthMiddleware() gin.HandlerFunc {
 
 		sessData, err := clientData.GetSessionData()
 		if err != nil {
-			response_util.NewResponse(c).SetMsg("get session from auth header fail: " + err.Error()).FailBadRequest()
+			response_util.NewResponse(c).SetMsg("get session from auth header fail: " + err.Error()).FailUnauthorized()
 			c.Abort()
 			return
 		}

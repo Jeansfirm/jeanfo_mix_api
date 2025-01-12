@@ -52,6 +52,10 @@ func (tt *HttpCall) Run() {
 	GTestTool.router.ServeHTTP(tt.Resp, tt.Req)
 }
 
+func (tt *HttpCall) Reset() {
+	tt.Resp = httptest.NewRecorder()
+}
+
 type RespData = reponse_util.ResponsePayload
 
 func (tt *HttpCall) GetRespData() *RespData {

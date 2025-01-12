@@ -1,7 +1,9 @@
 package middleware
 
 import (
+	"fmt"
 	reponse_util "jeanfo_mix/util/response"
+	"runtime/debug"
 
 	"github.com/gin-gonic/gin"
 )
@@ -21,6 +23,9 @@ func RecoverMiddleWare() gin.HandlerFunc {
 
 				reponse_util.NewResponse(c).SetMsg(msg).FailInternalServerError()
 				c.Abort()
+
+				stack := debug.Stack()
+				fmt.Printf("RecoverMiddleWare recover panic from:%v\nStack Trace:\n%s\n", err, stack)
 			}
 		}()
 

@@ -107,10 +107,13 @@ func (sd *SessionData) Load() error {
 func (sd *SessionData) Delete() error {
 	ctx := context.Background()
 	err := RedisClient.Del(ctx, sd.RedisKey()).Err()
+	if err != nil {
+		return errors.New("redis删除session失败: " + err.Error())
+	}
 	sd.SessionDeleted = true
 	sd.SessionLoaded = false
 
-	return errors.New("redis删除session失败: " + err.Error())
+	return nil
 }
 
 func ClearUserSession(userID int) {

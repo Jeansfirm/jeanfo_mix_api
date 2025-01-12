@@ -35,9 +35,20 @@ func TestUserController_Main(t *testing.T) {
 	lHttpCall.Run()
 	assert.Equal(t, http.StatusOK, lHttpCall.Resp.Code)
 	lRespData := lHttpCall.GetRespData()
-	assert.NotEmpty(t, lRespData.Data.(map[string]any)["Token"])
+	token := lRespData.Data.(map[string]any)["Token"].(string)
+	assert.NotEmpty(t, token)
 
 	// test logout
+	loHttpCall := test.GTestTool.GenHttpCall(t, "POST", "/api/auth/logout", bytes.NewBuffer([]byte{}))
+	loHttpCall.Req.Header.Set("Ahuthorization", "Bear "+token)
+	loHttpCall.Run()
+	assert.Equal(t, loHttpCall.Resp.Code, http.StatusOK)
+	lfRespData := loHttpCall.GetRespData()
+	assert.Contains(t, lfRespData.Msg, "logout success")
+
+	loHttpCall.Reset()
+	loHttpCall.Run()
+	assert.Equal(t, loHttpCall.Resp.Code, http.StatusUnauthorized)
 }
 
 func TestUserController_FailAction(t *testing.T) {
