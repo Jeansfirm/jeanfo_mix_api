@@ -12,7 +12,7 @@ import (
 // AuthMiddleware 验证用户登录态
 func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		authString := c.GetHeader("Ahuthorization")
+		authString := c.GetHeader("Authorization")
 		if authString == "" {
 			response_util.NewResponse(c).SetMsg("no auth header found").FailUnauthorized()
 			c.Abort()
@@ -20,7 +20,7 @@ func AuthMiddleware() gin.HandlerFunc {
 		}
 
 		authParts := strings.Split(authString, " ")
-		if len(authParts) != 2 || authParts[0] != "Bear" {
+		if len(authParts) != 2 || authParts[0] != "Bearer" {
 			response_util.NewResponse(c).SetMsg("auth header not bear type").FailUnauthorized()
 			c.Abort()
 			return

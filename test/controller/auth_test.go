@@ -40,7 +40,7 @@ func TestUserController_Main(t *testing.T) {
 
 	// test logout
 	loHttpCall := test.GTestTool.GenHttpCall(t, "POST", "/api/auth/logout", bytes.NewBuffer([]byte{}))
-	loHttpCall.Req.Header.Set("Ahuthorization", "Bear "+token)
+	loHttpCall.Req.Header.Set("Authorization", "Bearer "+token)
 	loHttpCall.Run()
 	assert.Equal(t, loHttpCall.Resp.Code, http.StatusOK)
 	lfRespData := loHttpCall.GetRespData()
@@ -78,7 +78,7 @@ func TestUserController_FailAction(t *testing.T) {
 	assert.Contains(t, lfRespData.Msg, "no auth header found")
 
 	lfHttpCall2 := test.GTestTool.GenHttpCall(t, "POST", "/api/auth/logout", bytes.NewBuffer([]byte{}))
-	lfHttpCall2.Req.Header.Set("Ahuthorization", "xx ee")
+	lfHttpCall2.Req.Header.Set("Authorization", "xx ee")
 	lfHttpCall2.Run()
 	assert.Equal(t, lfHttpCall2.Resp.Code, http.StatusUnauthorized)
 	lfRespData2 := lfHttpCall2.GetRespData()
