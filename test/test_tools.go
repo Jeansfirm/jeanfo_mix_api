@@ -2,8 +2,12 @@ package test
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
+	auth_service "jeanfo_mix/internal/service/auth"
+	user_service "jeanfo_mix/internal/service/user"
 	reponse_util "jeanfo_mix/util/response"
+	session_util "jeanfo_mix/util/session"
 	"net/http"
 	"net/http/httptest"
 	"sync"
@@ -34,6 +38,9 @@ func init() {
 }
 
 type HttpCall struct {
+	db     *gorm.DB
+	router *gin.Engine
+
 	T    *testing.T
 	Req  *http.Request
 	Resp *httptest.ResponseRecorder
@@ -45,7 +52,7 @@ func (tt *TestTool) GenHttpCall(t *testing.T, method, url string, body io.Reader
 
 	resp := httptest.NewRecorder()
 
-	return &HttpCall{T: t, Req: req, Resp: resp}
+	return &HttpCall{db: tt.db, router: tt.router, T: t, Req: req, Resp: resp}
 }
 
 func (tt *HttpCall) Run() {
@@ -64,4 +71,21 @@ func (tt *HttpCall) GetRespData() *RespData {
 	assert.Nil(tt.T, err, "parse resp body to json fail")
 
 	return &respData
+}
+
+func (hc *HttpCall) LoginAs(userName string) {
+	userService := user_service.UserService{DB: hc.db}
+	user := userService.GetUser(userName)
+	if user == nil {
+		newUser, err := userService.RegisterNormal(userName, "123Abc@Ef56")
+		if err != nil {
+			panic(fmt.Sprintf("Register %s fail: %s", userName, err.Error()))
+		}
+		user = newUser
+	}
+
+	sessionData := session_util.SessionData{UserID: user.ID, UserName: userName}
+	clientToken, _ := auth_service.LoginUser(&sessionData)
+
+	hc.Req.Header.Set("Authorization", "Bearer "+clientToken)
 }

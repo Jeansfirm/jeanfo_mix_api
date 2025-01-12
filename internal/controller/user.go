@@ -84,7 +84,10 @@ func (uc *UserController) ChangePasswd(ctx *gin.Context) {
 // user crud
 
 func (uc *UserController) Get(ctx *gin.Context) {
+	sessData := context_util.NewHttpContext(ctx).SessionData()
+	user := uc.Service.GetUser(sessData.UserName)
 
+	reponse_util.NewResponse(ctx).SetData(user).Success()
 }
 
 func (uc *UserController) List(ctx *gin.Context) {

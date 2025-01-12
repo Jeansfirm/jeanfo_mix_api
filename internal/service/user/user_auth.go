@@ -121,6 +121,15 @@ func (us *UserService) CreateUser(user *model.User, password string, saveHashedP
 	return user, nil
 }
 
+func (us *UserService) GetUser(userName string) *model.User {
+	var user model.User
+	err := us.DB.Where("username = ?", userName).First(&user).Error
+	if err != nil {
+		return nil
+	}
+	return &user
+}
+
 // Login 登录用户
 func (us *UserService) Login(lType LoginType,
 	username, password string,
