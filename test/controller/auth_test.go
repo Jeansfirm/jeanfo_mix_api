@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"jeanfo_mix/test"
 	"net/http"
-	"net/http/httptest"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -17,39 +16,28 @@ var (
 )
 
 func TestUserController_Main(t *testing.T) {
-	db := test.SetupTestDB(t)
-	router := test.SetupTestRouter(db)
-
 	// test register
 	payload := map[string]string{
 		"RType": "Normal", "UserName": correctUserName, "Password": correctPassword,
 	}
 	body, _ := json.Marshal(payload)
 
-	req, _ := http.NewRequest("POST", "/api/auth/register", bytes.NewBuffer(body))
-	req.Header.Set("Content-Type", "application/json")
-	resp := httptest.NewRecorder()
-
-	router.ServeHTTP(resp, req)
-	assert.Equal(t, http.StatusOK, resp.Code)
-	var respData map[string]interface{}
-	err := json.Unmarshal(resp.Body.Bytes(), &respData)
-	assert.Nil(t, err)
-	assert.Equal(t, respData["Code"], float64(0))
+	rHttpCall := test.GTestTool.GenHttpCall(t, "POST", "/api/auth/register", bytes.NewBuffer(body))
+	rHttpCall.Run()
+	assert.Equal(t, http.StatusOK, rHttpCall.Resp.Code)
+	rRespData := rHttpCall.GetRespData()
+	assert.Equal(t, rRespData.Code, 0)
 
 	// test login
 	payload = map[string]string{"LType": "Normal", "UserName": correctUserName, "Password": correctPassword}
-	body, _ = json.Marshal(payload)
-	req, _ = http.NewRequest("POST", "/api/auth/login", bytes.NewBuffer(body))
-	req.Header.Set("Content-Type", "application/json")
-	resp = httptest.NewRecorder()
-	router.ServeHTTP(resp, req)
-	assert.Equal(t, http.StatusOK, resp.Code)
-	respData = map[string]any{}
-	err = json.Unmarshal(resp.Body.Bytes(), &respData)
-	assert.Nil(t, err)
-	data := respData["Data"]
-	assert.NotEmpty(t, data.(map[string]any)["Token"])
+	lBody, _ := json.Marshal(payload)
+	lHttpCall := test.GTestTool.GenHttpCall(t, "POST", "/api/auth/login", bytes.NewBuffer(lBody))
+	lHttpCall.Run()
+	assert.Equal(t, http.StatusOK, lHttpCall.Resp.Code)
+	lRespData := lHttpCall.GetRespData()
+	assert.NotEmpty(t, lRespData.Data.(map[string]any)["Token"])
+
+	// test logout
 }
 
 func TestUserController_FailAction(t *testing.T) {
@@ -70,4 +58,18 @@ func TestUserController_FailAction(t *testing.T) {
 	assert.Equal(t, httpCall.Resp.Code, http.StatusBadRequest)
 	respData := httpCall.GetRespData()
 	assert.Equal(t, respData.Code, -1)
+
+	// logout fail
+	lfHttpCall := test.GTestTool.GenHttpCall(t, "POST", "/api/auth/logout", bytes.NewBuffer([]byte{}))
+	lfHttpCall.Run()
+	assert.Equal(t, lfHttpCall.Resp.Code, http.StatusUnauthorized)
+	lfRespData := lfHttpCall.GetRespData()
+	assert.Contains(t, lfRespData.Msg, "no auth header found")
+
+	lfHttpCall2 := test.GTestTool.GenHttpCall(t, "POST", "/api/auth/logout", bytes.NewBuffer([]byte{}))
+	lfHttpCall2.Req.Header.Set("Ahuthorization", "xx ee")
+	lfHttpCall2.Run()
+	assert.Equal(t, lfHttpCall2.Resp.Code, http.StatusUnauthorized)
+	lfRespData2 := lfHttpCall2.GetRespData()
+	assert.Contains(t, lfRespData2.Msg, "not bear type")
 }

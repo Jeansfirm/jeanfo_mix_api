@@ -1,30 +1,49 @@
 package middleware
 
-// import (
-// 	"net/http"
+import (
+	"strings"
 
-// 	"jeanfo_mix/internal/service"
+	auth_service "jeanfo_mix/internal/service/auth"
+	response_util "jeanfo_mix/util/response"
 
-// 	"github.com/gin-gonic/gin"
-// )
+	"github.com/gin-gonic/gin"
+)
 
-// // AuthMiddleware 验证用户登录态
-// func AuthMiddleware() gin.HandlerFunc {
-// 	return func(c *gin.Context) {
-// 		token, err := c.Cookie("token")
-// 		if err != nil {
-// 			c.JSON(http.StatusUnauthorized, gin.H{"error": "未登录"})
-// 			c.Abort()
-// 			return
-// 		}
+// AuthMiddleware 验证用户登录态
+func AuthMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		authString := c.GetHeader("Ahuthorization")
+		if authString == "" {
+			response_util.NewResponse(c).SetMsg("no auth header found").FailUnauthorized()
+			c.Abort()
+			return
+		}
 
-// 		_, err = service.ParseToken(token)
-// 		if err != nil {
-// 			c.JSON(http.StatusUnauthorized, gin.H{"error": "登录已失效"})
-// 			c.Abort()
-// 			return
-// 		}
+		authParts := strings.Split(authString, " ")
+		if len(authParts) != 2 || authParts[0] != "Bear" {
+			response_util.NewResponse(c).SetMsg("auth header not bear type").FailUnauthorized()
+			c.Abort()
+			return
+		}
 
-// 		c.Next()
-// 	}
-// }
+		token := auth_service.ClientToken(authParts[1])
+		clientData := &auth_service.ClientData{}
+		if err := clientData.Load(token); err != nil {
+			response_util.NewResponse(c).SetMsg("auth header parse fail: " + err.Error()).FailUnauthorized()
+			c.Abort()
+			return
+		}
+
+		sessData, err := clientData.GetSessionData()
+		if err != nil {
+			response_util.NewResponse(c).SetMsg("get session from auth header fail: " + err.Error()).FailBadRequest()
+			c.Abort()
+			return
+		}
+
+		c.Set("ClientData", clientData)
+		c.Set("SessionData", sessData)
+
+		c.Next()
+	}
+}

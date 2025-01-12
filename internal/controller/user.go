@@ -2,7 +2,9 @@ package controller
 
 import (
 	"jeanfo_mix/internal/model"
+	auth_service "jeanfo_mix/internal/service/auth"
 	user_service "jeanfo_mix/internal/service/user"
+	context_util "jeanfo_mix/util/context"
 	reponse_util "jeanfo_mix/util/response"
 
 	"github.com/gin-gonic/gin"
@@ -67,7 +69,12 @@ func (uc *UserController) Login(ctx *gin.Context) {
 }
 
 func (uc *UserController) Logout(ctx *gin.Context) {
+	httpContext := context_util.NewHttpContext(ctx)
+	clientData := httpContext.ClientData()
+	clientToken, _ := clientData.GetToken()
+	auth_service.LogoutUser(clientToken)
 
+	reponse_util.NewResponse(ctx).SetMsg("logout success").Success()
 }
 
 func (uc *UserController) ChangePasswd(ctx *gin.Context) {

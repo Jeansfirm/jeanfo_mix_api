@@ -1,6 +1,7 @@
 package reponse_util
 
 import (
+	"encoding/json"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -20,15 +21,22 @@ type ResponsePayload struct {
 }
 
 func NewResponse(ctx *gin.Context) *Response {
-	return &Response{
+	resp := &Response{
 		ginCtx: ctx, HttpCode: http.StatusOK,
 	}
+
+	return resp
 }
 
 func (r *Response) Send() *Response {
-	// todo data判断转换成json
-
-	r.ginCtx.JSON(r.HttpCode, r.ResponsePayload)
+	if r.ginCtx.Writer.Written() {
+		// todo 需要清空原有的Body，否则会导致Body为两个json串的拼接，这里尚未实现
+		r.ginCtx.Writer.WriteHeader(r.HttpCode)
+		body, _ := json.Marshal(r.ResponsePayload)
+		r.ginCtx.Writer.Write(body) // 会导致叠串
+	} else {
+		r.ginCtx.JSON(r.HttpCode, r.ResponsePayload)
+	}
 	return r
 }
 
@@ -58,6 +66,10 @@ func (r *Response) Success() *Response {
 
 func (r *Response) Fail() *Response {
 	return r.SetCode(-1).Send()
+}
+
+func (r *Response) FailUnauthorized() *Response {
+	return r.SetHttpCode(http.StatusUnauthorized).Fail()
 }
 
 func (r *Response) FailBadRequest() *Response {

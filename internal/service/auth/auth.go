@@ -38,6 +38,7 @@ func (cd *ClientData) Load(token ClientToken) error {
 	if err != nil {
 		return err
 	}
+	cd.clientToken = token
 	cd.dataLoaded = true
 
 	return nil
