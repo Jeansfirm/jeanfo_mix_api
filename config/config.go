@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -18,8 +19,9 @@ func init() {
 }
 
 type WebConfig struct {
-	Host string `mapstructure:"host"`
-	Port int    `mapstructure:"port"`
+	Host     string `mapstructure:"host"`
+	Port     int    `mapstructure:"port"`
+	ProjRoot string `mapstructure:"proj_root"`
 }
 
 type DatabaseConfig struct {
@@ -39,10 +41,24 @@ type RedisConfig struct {
 }
 
 type Config struct {
-	Web       WebConfig      `mapstructure:"web"`
-	Database  DatabaseConfig `mapstructure:"database"`
+	Web       WebConfig      `yaml:"web"`
+	Database  DatabaseConfig `yaml:"database"`
 	JWTSecret JWTSecret      `mapstructure:"jwt_secret"`
-	Redis     RedisConfig    `mapstructure:"redis"`
+	Redis     RedisConfig    `yaml:"redis"`
+	Log       LogConfig      `yaml:"log"`
+}
+
+type LogConfig struct {
+	Dir     string        `yaml:"dir"`
+	Console bool          `yaml:"console"`
+	Level   string        `yaml:"level"`
+	Normal  LogFileConfig `yaml:"normal"`
+	Error   LogFileConfig `yaml:"error"`
+}
+
+type LogFileConfig struct {
+	MaxSize    int `mapstructure:"max_size"`
+	MaxBackups int `mapstructure:"max_backups"`
 }
 
 var AppConfig *Config
@@ -56,17 +72,21 @@ func GetConfig() *Config {
 }
 
 func LoadConfig() {
-	ex, err := os.Executable()
-	if err != nil {
-		log.Fatalf("get exe dir failed: %s", err.Error())
-	}
-	exeDir := filepath.Dir(ex)
-
 	viper.SetConfigName("config")
 	viper.SetConfigType("yaml")
-	viper.AddConfigPath(exeDir + "/config")
-	viper.AddConfigPath("/home/jeanfo/workspace/releases/jeanfo_mix_api/config")
-	viper.AddConfigPath("/Users/jeanfo/workspace/jeanfo_mix_api/config")
+	if configDir := os.Getenv("JMPConfigDir"); len(configDir) > 0 {
+		fmt.Println("Specified ConfigDir: " + configDir)
+		viper.AddConfigPath(configDir)
+	} else {
+		fmt.Println("No Specified ConfigDir - Now Search Some Default Dirs...")
+
+		ex, _ := os.Executable()
+		exeDir := filepath.Dir(ex)
+		viper.AddConfigPath(exeDir + "/config")
+
+		viper.AddConfigPath("/Users/jeanfo/workspace/jeanfo_mix_api/config")
+		viper.AddConfigPath("/home/jeanfo/workspace/releases/jeanfo_mix_api/config")
+	}
 
 	if err := viper.ReadInConfig(); err != nil {
 		log.Fatalf("Error reading config file: %v", err)

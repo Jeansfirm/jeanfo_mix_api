@@ -15,10 +15,11 @@ func TestConfig(t *testing.T) {
 	output, _ := cmd.CombinedOutput()
 	fmt.Println("test run in: ", string(output))
 
-	appConfig := config.AppConfig
+	appConfig := config.GetConfig()
 	redis := appConfig.Redis
 	assert.NotEmpty(t, redis.Addr, "not redis configured")
 	jwtSecret := appConfig.JWTSecret
+	fmt.Println(jwtSecret, " --- ", appConfig)
 	assert.NotEmpty(t, jwtSecret, "not jwt secret configured")
 
 	fmt.Printf("jwt secret: %v, type of %T", jwtSecret, jwtSecret)

@@ -5,7 +5,7 @@ import (
 	"jeanfo_mix/config"
 	"jeanfo_mix/internal/model"
 	"jeanfo_mix/internal/router"
-	"log"
+	"jeanfo_mix/util/log_util"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -20,7 +20,7 @@ func main() {
 		dbConfig.Username, dbConfig.Password, dbConfig.Host, dbConfig.Port, dbConfig.DBName)
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
-		log.Fatalf("Failed to connect to database: %v", err)
+		log_util.Fatal(fmt.Sprintf("Failed to connect to database: %v", err))
 	}
 
 	model.MigrateDB(db)

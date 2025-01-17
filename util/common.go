@@ -2,6 +2,7 @@ package util
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -26,6 +27,16 @@ func GetExeDir() string {
 	}
 
 	return filepath.Dir(ex)
+}
+
+func GetProjRoot() string {
+	projDir := config.AppConfig.Web.ProjRoot
+	_, err := os.Stat(projDir)
+	if err != nil {
+		panic(fmt.Sprintf("ProjRoot From Config Not OK: %s - %s", projDir, err.Error()))
+	}
+
+	return projDir
 }
 
 // GetRedisClient 获取Redis客户端单例

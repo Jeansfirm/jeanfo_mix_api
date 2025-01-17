@@ -1,8 +1,8 @@
 package main
 
 import (
-	"errors"
 	"fmt"
+	"log"
 )
 
 type MyError struct {
@@ -15,15 +15,7 @@ func (e *MyError) Error() string {
 }
 
 func main() {
-	mye := MyError{Code: 20, Message: "myErrorMsg"}
-	mye2 := mye
-	mye2.Code = 40
-
-	fmt.Println(mye, mye2)
-
-	mye3 := &mye
-	mye3.Code = 50
-	fmt.Println(&mye, &mye2)
-
-	errors.New()
+	log.Println("ee")
+	// log.Fatalln("ff")
+	log.Panicln("gg")
 }

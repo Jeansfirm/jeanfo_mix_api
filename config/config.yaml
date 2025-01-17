@@ -1,6 +1,7 @@
 web:
   host: "0.0.0.0"
   port: 10801
+  proj_root: "/Users/jeanfo/workspace/jeanfo_mix_api"
 
 database:
   host: "127.0.0.1"
@@ -17,3 +18,25 @@ redis:
   addr: "localhost:6379"
   password: ""
   db: 0
+
+# 日志配置
+log:
+  # 日志目录，默认./log
+  dir: "./log"
+  # 是否打印到控制台，默认true
+  console: true
+  # 最小日志级别，默认DEBUG
+  level: "DEBUG"
+  # 普通日志配置
+  normal:
+    # 单个日志文件最大大小，默认50MB
+    max_size: 50
+    # 保留的历史日志文件数量，默认30
+    max_backups: 30
+  # 错误日志配置
+  error:
+    # 单个日志文件最大大小，默认50MB
+    max_size: 50
+    # 保留的历史日志文件数量，默认3
+    max_backups: 3
+

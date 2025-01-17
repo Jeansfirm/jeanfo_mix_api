@@ -1,25 +1,14 @@
 package util_test
 
 import (
-	"fmt"
-	session_util "jeanfo_mix/util/session"
+	"jeanfo_mix/util/log_util"
 	"testing"
-
-	"github.com/fatih/structs"
 )
 
-type TmpSub struct {
-	Age int
-	Sex *string
-}
-
-type Tmp struct {
-	Name  string
-	Sub   TmpSub
-	extra string
-}
-
 func TestT(t *testing.T) {
-	session_util.ClearAllSession()
-	fmt.Println(structs.Map(Tmp{Name: "ee", extra: "extradata"}))
+	log_util.Debug("any %s %d", "jeanfo", 3)
+	log_util.Info("some")
+	log_util.Warn("haha")
+	log_util.Error("hehe %s", "kk")
+	log_util.Error("%v coming %f", 3, 4.4)
 }
