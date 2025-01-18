@@ -1,12 +1,15 @@
 package router
 
 import (
+	_ "jeanfo_mix/docs"
 	"jeanfo_mix/internal/controller"
 	"jeanfo_mix/internal/middleware"
 	"jeanfo_mix/internal/service"
 	user_service "jeanfo_mix/internal/service/user"
 
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 	"gorm.io/gorm"
 )
 
@@ -14,6 +17,8 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 	r := gin.Default()
 
 	r.Use(middleware.RecoverMiddleWare())
+
+	r.GET("swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	demoService := service.DemoService{DB: db}
 	demoController := controller.DemoController{Service: &demoService}

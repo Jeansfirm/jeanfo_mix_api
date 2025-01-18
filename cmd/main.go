@@ -11,6 +11,14 @@ import (
 	"gorm.io/gorm"
 )
 
+//	@title			JEANFO_MIX_API
+//	@version		1.0
+//	@description	This is a WEB server for JEANFO_MIX_API.
+//	@termsOfService	jeanfo.cn
+
+// @contact.name	Jeanfo Peng
+// @contact.url	http://jeanfo.cn
+// @contact.email	jeanf@qq.com
 func main() {
 	config.LoadConfig()
 	webConfig := config.AppConfig.Web
@@ -20,7 +28,7 @@ func main() {
 		dbConfig.Username, dbConfig.Password, dbConfig.Host, dbConfig.Port, dbConfig.DBName)
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
-		log_util.Fatal(fmt.Sprintf("Failed to connect to database: %v", err))
+		log_util.Fatal("Failed to connect to database: %v", err)
 	}
 
 	model.MigrateDB(db)

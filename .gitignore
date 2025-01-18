@@ -1,3 +1,5 @@
 .vscode
 build
 log/**/*.log
+**/__debug_*
+docs
