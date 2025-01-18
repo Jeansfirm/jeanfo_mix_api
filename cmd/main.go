@@ -16,6 +16,10 @@ import (
 //	@description	This is a WEB server for JEANFO_MIX_API.
 //	@termsOfService	jeanfo.cn
 
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+
 // @contact.name	Jeanfo Peng
 // @contact.url	http://jeanfo.cn
 // @contact.email	jeanf@qq.com

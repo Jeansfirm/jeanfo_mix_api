@@ -16,6 +16,7 @@ func NewHttpContext(ginCtx *gin.Context) *HttpContext {
 	return &HttpContext{GinCtx: ginCtx}
 }
 
+// get sessionData from gin context
 func (hc *HttpContext) SessionData() *session_util.SessionData {
 	value, ok := hc.GinCtx.Get("SessionData")
 	if !ok {

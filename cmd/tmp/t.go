@@ -15,7 +15,10 @@ func (e *MyError) Error() string {
 }
 
 func main() {
-	log.Println("ee")
-	// log.Fatalln("ff")
-	log.Panicln("gg")
+	// log.Println("ee")
+
+	log.Fatalln("ff")
+
+	// log.Panicln("gg")
+
 }

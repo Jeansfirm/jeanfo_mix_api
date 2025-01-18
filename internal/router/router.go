@@ -24,6 +24,8 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 	demoController := controller.DemoController{Service: &demoService}
 	userService := user_service.UserService{DB: db}
 	userController := controller.UserController{Service: &userService}
+	blogService := service.BlogService{DB: db}
+	blogController := controller.BlogController{Service: &blogService}
 
 	// only demo
 	r.GET("/api/demos/hello", demoController.HelloWorld)
@@ -59,9 +61,9 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 		loginApiGroup.GET("/users", userController.List) // 获取用户列表
 	}
 
-	// other
+	// blog
 	{
-
+		loginApiGroup.POST("/blog/articles", blogController.CreateArticle)
 	}
 
 	return r

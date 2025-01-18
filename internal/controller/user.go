@@ -15,15 +15,15 @@ type UserController struct {
 }
 
 type RegisterReq struct {
-	RType    user_service.RegisterType `json:"RType" bind:"required"`
-	UserName string                    `json:"UserName"`
-	Password string                    `json:"Password"`
+	RType    string `bind:"required"`
+	UserName string `json:"UserName"`
+	Password string `json:"Password"`
 }
 
 type LoginReq struct {
-	LType    user_service.LoginType `json:"LType" bind:"required"`
-	UserName string                 `json:"UserName"`
-	Password string                 `json:"Password"`
+	LType    string `json:"LType" bind:"required"`
+	UserName string `json:"UserName"`
+	Password string `json:"Password"`
 }
 
 type LoginResp struct {
@@ -33,6 +33,10 @@ type LoginResp struct {
 
 // auth
 
+// @Summary Auth: Register
+// @Tags Auth
+// @Param register body RegisterReq true "register"
+// @Router /api/auth/register [post]
 func (uc *UserController) Register(ctx *gin.Context) {
 	var req RegisterReq
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -41,7 +45,7 @@ func (uc *UserController) Register(ctx *gin.Context) {
 		return
 	}
 
-	user, err := uc.Service.Register(req.RType, req.UserName, req.Password, "", "", "", "")
+	user, err := uc.Service.Register(user_service.RegisterType(req.RType), req.UserName, req.Password, "", "", "", "")
 	if err != nil {
 		msg := "register fail: " + err.Error()
 		reponse_util.NewResponse(ctx).SetMsg(msg).FailBadRequest()
@@ -51,6 +55,10 @@ func (uc *UserController) Register(ctx *gin.Context) {
 	reponse_util.NewResponse(ctx).SetMsg("register success").SetData(user).Success()
 }
 
+// @Summary Auth: Login
+// @Tags Auth
+// @Param login body LoginReq true "login"
+// @Router /api/auth/login [post]
 func (uc *UserController) Login(ctx *gin.Context) {
 	var req LoginReq
 	err := ctx.ShouldBindJSON(&req)
@@ -58,7 +66,7 @@ func (uc *UserController) Login(ctx *gin.Context) {
 		reponse_util.NewResponse(ctx).SetMsg("params error: " + err.Error()).FailBadRequest()
 		return
 	}
-	user, clientToken, err := uc.Service.Login(req.LType, req.UserName, req.Password)
+	user, clientToken, err := uc.Service.Login(user_service.LoginType(req.LType), req.UserName, req.Password)
 	if err != nil {
 		reponse_util.NewResponse(ctx).SetMsg("login fail: " + err.Error()).FailBadRequest()
 		return
