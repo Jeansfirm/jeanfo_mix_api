@@ -18,7 +18,7 @@ func (s *BlogService) CreateArticle(article *model.Article) error {
 func (s *BlogService) ListArticle(req *blog_definition.ListArticleReq) ([]*model.Article, error) {
 	query := s.DB
 	if req.UserID != 0 {
-		query = query.Where(&model.Article{UserID: req.UserID})
+		query = query.Where(&model.Article{UserID: int32(req.UserID)})
 	}
 	offset := (req.Page - 1) * req.PageSize
 	query = query.Offset(offset).Limit(req.PageSize)
@@ -27,4 +27,8 @@ func (s *BlogService) ListArticle(req *blog_definition.ListArticleReq) ([]*model
 	err := query.Find(&articles).Error
 
 	return articles, err
+}
+
+func (s *BlogService) CreateComment(comment *model.Comment) error {
+	return s.DB.Create(comment).Error
 }

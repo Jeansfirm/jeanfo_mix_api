@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"database/sql"
 	blog_definition "jeanfo_mix/internal/definition/blog"
 	"jeanfo_mix/internal/model"
 	"jeanfo_mix/internal/service"
@@ -25,7 +26,7 @@ func (c *BlogController) CreateArticle(ctx *gin.Context) {
 
 	userID := context_util.NewHttpContext(ctx).SessionData().UserID
 	article := model.Article{
-		UserID: userID, Ttile: req.Title, Content: req.Content, PlainText: req.PlainText,
+		UserID: int32(userID), Ttile: req.Title, Content: req.Content, PlainText: req.PlainText,
 	}
 	err := c.Service.CreateArticle(&article)
 	if err != nil {
@@ -74,4 +75,32 @@ func (c *BlogController) ListArticleMy(ctx *gin.Context) {
 	}
 
 	response_util.NewResponse(ctx).SetData(articles).Success()
+}
+
+// @Summary Blog: Create Comment
+// @Tags Blog
+// @Param comment body blog_definition.CreateCommentReq true "create comment"
+// @Router /api/blog/comments [post]
+// @Security BearerAuth
+func (c *BlogController) CreateComment(ctx *gin.Context) {
+	req := request_util.NewRequest[blog_definition.CreateCommentReq](ctx).Data
+
+	userID := context_util.NewHttpContext(ctx).SessionData().UserID
+	comment := model.Comment{
+		UserID: int32(userID), ArticleID: req.ArticleID,
+		Content: req.Content, PlainText: req.PlainText,
+	}
+	if req.CommentID == nil {
+		comment.CommentID = sql.NullInt32{Valid: false}
+	} else {
+		comment.CommentID = sql.NullInt32{Int32: int32(*req.CommentID), Valid: true}
+	}
+
+	err := c.Service.CreateComment(&comment)
+	if err != nil {
+		response_util.NewResponse(ctx).SetMsg("create comment fail: " + err.Error()).FailBadRequest()
+		return
+	}
+
+	response_util.NewResponse(ctx).SetMsg("create comment successfully").SetData(comment).Success()
 }
