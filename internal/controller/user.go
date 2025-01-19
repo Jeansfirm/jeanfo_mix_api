@@ -15,7 +15,7 @@ type UserController struct {
 }
 
 type RegisterReq struct {
-	RType    string `bind:"required"`
+	RType    string `json:"RType" bind:"required"`
 	UserName string `json:"UserName"`
 	Password string `json:"Password"`
 }

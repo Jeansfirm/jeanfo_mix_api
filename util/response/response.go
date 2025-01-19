@@ -65,7 +65,10 @@ func (r *Response) Success() *Response {
 }
 
 func (r *Response) Fail() *Response {
-	return r.SetCode(-1).Send()
+	if r.Code == 0 {
+		r.Code = -1
+	}
+	return r.Send()
 }
 
 func (r *Response) FailUnauthorized() *Response {
