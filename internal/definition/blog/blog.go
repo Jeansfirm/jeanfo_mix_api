@@ -28,3 +28,9 @@ type CreateCommentReq struct {
 
 	UserID int `json:"UserID"`
 }
+
+type ListCommentReq struct {
+	definition.PageReq
+
+	ArticleID *int `json:"ArticleID"`
+}

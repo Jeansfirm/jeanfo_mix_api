@@ -1,8 +1,9 @@
 package model
 
 import (
-	"database/sql"
 	"time"
+
+	"github.com/guregu/null"
 )
 
 type Article struct {
@@ -20,7 +21,7 @@ type Comment struct {
 	Content   string `gorm:"type:text"`
 	PlainText string `gorm:"type:text"`
 	ArticleID int    `gorm:"type:int"`
-	CommentID sql.NullInt32
+	CommentID null.Int
 	UserID    int32     `gorm:"type:int"`
 	CreatedAt time.Time `gorm:"autoCreateTime"` // 创建时间
 	UpdatedAt time.Time `gorm:"autoUpdateTime"` // 更新时间

@@ -32,3 +32,17 @@ func (s *BlogService) ListArticle(req *blog_definition.ListArticleReq) ([]*model
 func (s *BlogService) CreateComment(comment *model.Comment) error {
 	return s.DB.Create(comment).Error
 }
+
+func (s *BlogService) ListComment(req *blog_definition.ListCommentReq) ([]*model.Comment, error) {
+	query := s.DB
+	if req.ArticleID != nil {
+		query = query.Where(&model.Comment{ArticleID: int(*req.ArticleID)})
+	}
+	offset := (req.Page - 1) * req.PageSize
+	query = query.Offset(offset).Limit(req.PageSize)
+
+	var comments []*model.Comment
+	err := query.Find(&comments).Error
+
+	return comments, err
+}

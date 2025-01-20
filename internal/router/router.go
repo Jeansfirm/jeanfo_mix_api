@@ -68,6 +68,7 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 		loginApiGroup.GET("/blog/articles/my", blogController.ListArticleMy)
 
 		loginApiGroup.POST("/blog/comments", blogController.CreateComment)
+		loginApiGroup.GET("/blog/comments", blogController.ListComment)
 	}
 
 	return r
