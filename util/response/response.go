@@ -20,6 +20,13 @@ type ResponsePayload struct {
 	Data any    `json:"Data"`
 }
 
+type PaginatedData struct {
+	Page     int   `json:"Page"`
+	PageSize int   `json:"PageSize"`
+	Total    int64 `json:"Total"`
+	Rows     any   `json:"Rows"`
+}
+
 func NewResponse(ctx *gin.Context) *Response {
 	resp := &Response{
 		ginCtx: ctx, HttpCode: http.StatusOK,
@@ -27,6 +34,8 @@ func NewResponse(ctx *gin.Context) *Response {
 
 	return resp
 }
+
+var New = NewResponse
 
 func (r *Response) Send() *Response {
 	if r.ginCtx.Writer.Written() {
@@ -57,6 +66,13 @@ func (r *Response) SetMsg(msg string) *Response {
 
 func (r *Response) SetData(data interface{}) *Response {
 	r.Data = data
+	return r
+}
+
+func (r *Response) SetDataPaginated(total int64, rows any, page, pageSize int) *Response {
+	r.Data = PaginatedData{
+		Total: total, Rows: rows, Page: page, PageSize: pageSize,
+	}
 	return r
 }
 

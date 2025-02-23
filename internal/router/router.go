@@ -5,6 +5,7 @@ import (
 	"jeanfo_mix/internal/controller"
 	"jeanfo_mix/internal/middleware"
 	"jeanfo_mix/internal/service"
+	chat_service "jeanfo_mix/internal/service/chat"
 	user_service "jeanfo_mix/internal/service/user"
 
 	"github.com/gin-gonic/gin"
@@ -26,6 +27,8 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 	userController := controller.UserController{Service: &userService}
 	blogService := service.BlogService{DB: db}
 	blogController := controller.BlogController{Service: &blogService}
+	chatService := chat_service.ChatService{DB: db}
+	chatController := controller.ChatController{Service: &chatService}
 
 	// only demo
 	r.GET("/api/demos/hello", demoController.HelloWorld)
@@ -33,27 +36,23 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 	r.POST("/api/demos", demoController.CreateDemo)
 	r.DELETE("/api/demos/:id", demoController.DeleteDemo)
 
-	// nologin auth
-	authGroup := r.Group("/api/auth")
+	// nologin apis
+	noLoginApiGroup := r.Group("/api")
 	{
-		authGroup.POST("/register", userController.Register) // 用户注册
-		authGroup.POST("/login", userController.Login)
+		// nologin auth  ////////////////////////////////////////////////////////
+		noLoginApiGroup.POST("/auth/register", userController.Register) // 用户注册
+		noLoginApiGroup.POST("/auth/login", userController.Login)
 	}
 
-	// login auth
-	loginAuthGroup := r.Group("/api/auth")
-	loginAuthGroup.Use(middleware.AuthMiddleware()) // 需要登录态的接口
-	{
-		loginAuthGroup.POST("/logout", userController.Logout)
-		loginAuthGroup.POST("/change_passwd", userController.ChangePasswd)
-	}
-
-	// nologin apis ///////////////////////////////////////////////////////////
-	// apiGroup := r.Group("/api")
-
-	// login apis /////////////////////////////////////////////////////////////
+	// login apis ///////////////////////////////////////////////////////////////
 	loginApiGroup := r.Group("/api")
 	loginApiGroup.Use(middleware.AuthMiddleware()) // 需要登录态的接口
+
+	// auth
+	{
+		loginApiGroup.POST("/auth/logout", userController.Logout)
+		loginApiGroup.POST("/auth/change_passwd", userController.ChangePasswd)
+	}
 
 	// user
 	{
@@ -69,6 +68,14 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 
 		loginApiGroup.POST("/blog/comments", blogController.CreateComment)
 		loginApiGroup.GET("/blog/comments", blogController.ListComment)
+	}
+
+	// chat
+	{
+		chatGroup := loginApiGroup.Group("/chat")
+		chatGroup.GET("/conversations", chatController.ListConversation)
+		chatGroup.POST("/conversations", chatController.CreateConversion)
+		chatGroup.GET("/messages", chatController.ListMessage)
 	}
 
 	return r

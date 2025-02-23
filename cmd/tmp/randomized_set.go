@@ -5,7 +5,8 @@ import (
 	util_tmp "jeanfo_mix/util/tmp"
 )
 
-func main() {
+// func main() {
+func _() {
 	randomizedSet := util_tmp.BuildRandomizeSet()
 	randomizedSet.Insert(3)
 	randomizedSet.Insert(4)

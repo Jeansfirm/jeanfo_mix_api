@@ -1,14 +1,20 @@
 package util_test
 
 import (
-	"jeanfo_mix/util/log_util"
+	"encoding/json"
+	"fmt"
+	reponse_util "jeanfo_mix/util/response"
 	"testing"
 )
 
 func TestT(t *testing.T) {
-	log_util.Debug("any %s %d", "jeanfo", 3)
-	log_util.Info("some")
-	log_util.Warn("haha")
-	log_util.Error("hehe %s", "kk")
-	log_util.Error("%v coming %f", 3, 4.4)
+	payload := reponse_util.ResponsePayload{
+		Code: 2, Msg: "haha", Data: reponse_util.PaginatedData{
+			Total: 30, Page: 10, Rows: []int{3, 4, 5},
+		},
+	}
+
+	bs, err := json.Marshal(payload)
+	fmt.Println(err)
+	fmt.Println(string(bs))
 }
