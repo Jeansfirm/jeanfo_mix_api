@@ -19,10 +19,11 @@ func init() {
 }
 
 type WebConfig struct {
-	Host      string `mapstructure:"host"`
-	Port      int    `mapstructure:"port"`
-	ProjRoot  string `mapstructure:"proj_root"`
-	UploadDir string `mapstructure:"upload_dir"`
+	Host                string `mapstructure:"host"`
+	Port                int    `mapstructure:"port"`
+	ProjRoot            string `mapstructure:"proj_root"`
+	UploadDir           string `mapstructure:"upload_dir"`
+	UploadDirStaticPath string `mapstructure:"upload_dir_static_path"`
 }
 
 type DatabaseConfig struct {

@@ -3,6 +3,7 @@ web:
   port: 10801
   proj_root: "/Users/jeanfo/workspace/jeanfo_mix_api"
   upload_dir: "/Users/jeanfo/workspace/jeanfo_mix_api/data/upload"
+  upload_dir_static_path: "/static/upload"
 
 database:
   host: "127.0.0.1"

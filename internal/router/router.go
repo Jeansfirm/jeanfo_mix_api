@@ -1,12 +1,14 @@
 package router
 
 import (
+	"jeanfo_mix/config"
 	_ "jeanfo_mix/docs"
 	"jeanfo_mix/internal/controller"
 	"jeanfo_mix/internal/middleware"
 	"jeanfo_mix/internal/service"
 	chat_service "jeanfo_mix/internal/service/chat"
 	user_service "jeanfo_mix/internal/service/user"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
@@ -15,6 +17,7 @@ import (
 )
 
 func SetupRouter(db *gorm.DB) *gin.Engine {
+	config := config.GetConfig()
 	r := gin.Default()
 
 	r.Use(middleware.RecoverMiddleWare())
@@ -37,6 +40,12 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 	r.GET("/api/demos", demoController.GetDemos)
 	r.POST("/api/demos", demoController.CreateDemo)
 	r.DELETE("/api/demos/:id", demoController.DeleteDemo)
+
+	// static files
+	{
+		// e.g. req_path: /static/upload/xx/1.jpg  => local_path: /to/upload_dir/xx/1.jpg
+		r.StaticFS(config.Web.UploadDirStaticPath, http.Dir(config.Web.UploadDir))
+	}
 
 	// nologin apis
 	noLoginApiGroup := r.Group("/api")
