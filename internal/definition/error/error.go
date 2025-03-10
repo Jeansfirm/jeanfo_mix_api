@@ -5,6 +5,10 @@ type BaseError struct {
 	Msg  string
 }
 
+type GenericError struct {
+	BaseError
+}
+
 type BadRequestError struct {
 	BaseError
 }

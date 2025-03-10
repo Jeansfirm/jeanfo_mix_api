@@ -76,6 +76,10 @@ func (uc *UserController) Login(ctx *gin.Context) {
 	reponse_util.NewResponse(ctx).SetMsg("login success").SetData(resp).Success()
 }
 
+// @Summary Auth: Logout
+// @Tags Auth
+// @Router /api/auth/logout [post]
+// @Security BearerAuth
 func (uc *UserController) Logout(ctx *gin.Context) {
 	httpContext := context_util.NewHttpContext(ctx)
 	clientData := httpContext.ClientData()

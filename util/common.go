@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"math/rand"
 	"os"
 	"path/filepath"
 	"sync"
@@ -63,4 +64,38 @@ func GetRedisClient() *redis.Client {
 	})
 
 	return redisInstance
+}
+
+func GenRandomString(length int, onlyLowerCase bool) string {
+	const lower = "abcdefghijklmnopqrstuvwxyz"
+	const upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	const digit = "0123456789"
+	choices := lower + upper + digit
+
+	if onlyLowerCase {
+		choices = lower
+	}
+	cLen := len(choices)
+
+	rand.Seed(time.Now().UnixNano())
+	b := make([]byte, length)
+
+	for i := range b {
+		b[i] = choices[rand.Intn(cLen)]
+	}
+
+	return string(b)
+}
+
+func GenTimeBasedUUID(length int) string {
+	now := time.Now()
+	timePart := now.Format("20060102150405.000000")
+
+	randomPart := ""
+	randomLen := length - len(timePart)
+	if randomLen > 0 {
+		randomPart = GenRandomString(randomLen, true)
+	}
+
+	return fmt.Sprintf("%s.%s", timePart, randomPart)
 }
