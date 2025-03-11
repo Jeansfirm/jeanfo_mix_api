@@ -1,10 +1,13 @@
 package controller
 
 import (
+	error_definition "jeanfo_mix/internal/definition/error"
+	user_definition "jeanfo_mix/internal/definition/user"
 	"jeanfo_mix/internal/model"
 	auth_service "jeanfo_mix/internal/service/auth"
 	user_service "jeanfo_mix/internal/service/user"
 	context_util "jeanfo_mix/util/context"
+	request_util "jeanfo_mix/util/request"
 	reponse_util "jeanfo_mix/util/response"
 
 	"github.com/gin-gonic/gin"
@@ -95,13 +98,42 @@ func (uc *UserController) ChangePasswd(ctx *gin.Context) {
 
 // user crud
 
-func (uc *UserController) Get(ctx *gin.Context) {
+// @Summary User: GetUser My
+// @Tags User
+// @Router /api/users/my [get]
+// @Security BearerAuth
+func (uc *UserController) GetUserMy(ctx *gin.Context) {
 	sessData := context_util.NewHttpContext(ctx).SessionData()
-	user := uc.Service.GetUser(sessData.UserName)
+	// user := uc.Service.GetUser(sessData.UserName)
+	user, _ := uc.Service.Get(sessData.UserID)
 
 	reponse_util.NewResponse(ctx).SetData(user).Success()
 }
 
 func (uc *UserController) List(ctx *gin.Context) {
 
+}
+
+// @Summary User: UpdateUser My
+// @Tags User
+// @Param updateUserMy body user_definition.UpdateUserMyReq true "update user my"
+// @Router /api/users/my [post]
+// @Security BearerAuth
+func (uc *UserController) UpdateUserMy(ctx *gin.Context) {
+	sessData := context_util.NewHttpContext(ctx).SessionData()
+	req := request_util.NewRequest[user_definition.UpdateUserMyReq](ctx).Data
+	req.UserID = uint(sessData.UserID)
+
+	reqCompatible := &user_definition.UpdateUserReq{
+		UserID: req.UserID, UpdateUserBaseReq: req.UpdateUserBaseReq,
+	}
+
+	err := uc.Service.Update(reqCompatible)
+	if err != nil {
+		ferr := error_definition.BadRequestError{}
+		ferr.Msg = err.Error()
+		panic(ferr)
+	}
+
+	reponse_util.New(ctx).SetMsg("update successfully").Success()
 }

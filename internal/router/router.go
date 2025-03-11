@@ -67,8 +67,9 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 
 	// user
 	{
-		loginApiGroup.GET("/user", userController.Get)   // 获取用户信息
-		loginApiGroup.GET("/users", userController.List) // 获取用户列表
+		loginApiGroup.GET("/users/my", userController.GetUserMy)     // 获取我的用户信息
+		loginApiGroup.POST("/users/my", userController.UpdateUserMy) // 更新我的用户信息
+		loginApiGroup.GET("/users", userController.List)             // 获取用户列表
 	}
 
 	// file
