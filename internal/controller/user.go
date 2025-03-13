@@ -31,7 +31,7 @@ type LoginReq struct {
 
 type LoginResp struct {
 	Token string
-	User  model.User
+	User  model.UserMasked
 }
 
 // auth
@@ -75,7 +75,7 @@ func (uc *UserController) Login(ctx *gin.Context) {
 		return
 	}
 
-	resp := LoginResp{Token: clientToken, User: *user}
+	resp := LoginResp{Token: clientToken, User: *user.AsMaskedData()}
 	reponse_util.NewResponse(ctx).SetMsg("login success").SetData(resp).Success()
 }
 
@@ -107,7 +107,7 @@ func (uc *UserController) GetUserMy(ctx *gin.Context) {
 	// user := uc.Service.GetUser(sessData.UserName)
 	user, _ := uc.Service.Get(sessData.UserID)
 
-	reponse_util.NewResponse(ctx).SetData(user).Success()
+	reponse_util.NewResponse(ctx).SetData(user.AsMaskedData()).Success()
 }
 
 func (uc *UserController) List(ctx *gin.Context) {
