@@ -75,7 +75,7 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 	// file
 	{
 		loginApiGroup.POST("/file/upload", fileController.UploadFile)
-		// loginApiGroup.GET("/file/download", fileController)
+		loginApiGroup.GET("/file/download", fileController.DownloadFile)
 	}
 
 	// blog

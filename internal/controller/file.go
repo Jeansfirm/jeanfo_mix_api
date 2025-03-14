@@ -1,8 +1,10 @@
 package controller
 
 import (
+	"jeanfo_mix/internal/definition"
 	"jeanfo_mix/internal/service"
 	context_util "jeanfo_mix/util/context"
+	request_util "jeanfo_mix/util/request"
 	response_util "jeanfo_mix/util/response"
 
 	"github.com/gin-gonic/gin"
@@ -39,4 +41,22 @@ func (c *FileController) UploadFile(gtx *gin.Context) {
 	response_util.NewResponse(gtx).SetData(
 		map[string]any{"MetaID": metaID, "RelativePath": relativePath},
 	).Success()
+}
+
+// @Summary Common: Download File
+// @Tags Common
+// @Param query query definition.DownloadFileReq true "download file"
+// @Router /api/file/download [get]
+// @Security BearerAuth
+func (c *FileController) DownloadFile(gtx *gin.Context) {
+	userID := context_util.NewHttpContext(gtx).SessionData().UserID
+	req := request_util.NewRequest[definition.DownloadFileReq](gtx)
+
+	filePath, fileName, err := c.Service.DownloadFile(uint(userID), req.Data.MetaID)
+	if err != nil {
+		response_util.NewResponse(gtx).SetMsg(err.Error()).FailBadRequest()
+		return
+	}
+
+	gtx.FileAttachment(filePath, fileName)
 }

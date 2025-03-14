@@ -4,6 +4,7 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"errors"
+	"fmt"
 	"io"
 	"jeanfo_mix/config"
 	"jeanfo_mix/internal/model"
@@ -70,5 +71,26 @@ func (s *FileService) UploadFile(file io.ReadSeeker, fileName string, userID uin
 		metaID = fileModel.MetaID
 	}
 
+	return
+}
+
+func (s *FileService) DownloadFile(userID uint, metaID string) (filePath, fileName string, err error) {
+	fileModel := &model.File{}
+	err = s.DB.Where(&model.File{MetaID: metaID}).First(&fileModel).Error
+	if err != nil {
+		err = fmt.Errorf("file with metaID %s not found in db: %s", metaID, err.Error())
+		return
+	}
+
+	baseDir := config.GetConfig().Web.UploadDir
+	fileRelativePath, fileName := fileModel.RelativePath, fileModel.FileName
+	fileAbsolutePath := filepath.Join(baseDir, fileRelativePath)
+
+	if _, ferr := os.Stat(fileAbsolutePath); os.IsNotExist(ferr) {
+		err = fmt.Errorf("file with metaID %s not found in dir: %s", metaID, ferr.Error())
+		return
+	}
+
+	filePath = fileAbsolutePath
 	return
 }
