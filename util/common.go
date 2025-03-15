@@ -92,7 +92,7 @@ func GenTimeBasedUUID(length int) string {
 	timePart := now.Format("20060102150405.000000")
 
 	randomPart := ""
-	randomLen := length - len(timePart)
+	randomLen := length - len(timePart) - 1
 	if randomLen > 0 {
 		randomPart = GenRandomString(randomLen, true)
 	}

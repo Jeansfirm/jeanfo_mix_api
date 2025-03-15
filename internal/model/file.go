@@ -19,7 +19,7 @@ type File struct {
 
 func (f *File) Create(DB *gorm.DB) error {
 	if f.MetaID == "" {
-		f.MetaID = util.GenTimeBasedUUID(28)
+		f.MetaID = util.GenTimeBasedUUID(26)
 	}
 	err := DB.Create(f).Error
 
