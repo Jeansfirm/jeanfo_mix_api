@@ -3,14 +3,13 @@ package util
 import (
 	"context"
 	"fmt"
+	"jeanfo_mix/config"
 	"log"
 	"math/rand"
 	"os"
 	"path/filepath"
 	"sync"
 	"time"
-
-	"jeanfo_mix/config"
 
 	"github.com/go-redis/redis/v8"
 )
@@ -31,7 +30,7 @@ func GetExeDir() string {
 }
 
 func GetProjRoot() string {
-	projDir := config.AppConfig.Web.ProjRoot
+	projDir := config.GetConfig().Web.ProjRoot
 	_, err := os.Stat(projDir)
 	if err != nil {
 		panic(fmt.Sprintf("ProjRoot From Config Not OK: %s - %s", projDir, err.Error()))

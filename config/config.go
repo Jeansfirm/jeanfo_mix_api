@@ -10,13 +10,13 @@ import (
 	"github.com/spf13/viper"
 )
 
-var once sync.Once
+// var once sync.Once
 
-func init() {
-	once.Do(func() {
-		LoadConfig()
-	})
-}
+// func init() {
+// 	once.Do(func() {
+// 		LoadConfig()
+// 	})
+// }
 
 type WebConfig struct {
 	Host                string `mapstructure:"host"`
@@ -63,31 +63,50 @@ type LogFileConfig struct {
 	MaxBackups int `mapstructure:"max_backups"`
 }
 
+var configPath string
 var AppConfig *Config
+var loadMutex sync.Mutex
 
 // GetConfig 获取配置实例
 func GetConfig() *Config {
+
 	if AppConfig == nil {
-		LoadConfig()
+		loadMutex.Lock()
+		defer loadMutex.Unlock()
+
+		if AppConfig == nil {
+			LoadConfig()
+		}
 	}
 	return AppConfig
 }
 
+func SetConfigPath(path string) {
+	configPath = path
+}
+
 func LoadConfig() {
-	viper.SetConfigName("config")
-	viper.SetConfigType("yaml")
-	if configDir := os.Getenv("JMPConfigDir"); len(configDir) > 0 {
-		fmt.Println("Specified ConfigDir: " + configDir)
-		viper.AddConfigPath(configDir)
+	if configPath == "" {
+		viper.SetConfigName("config")
+		viper.SetConfigType("yaml")
+
+		configPathEnvName := "JMPConfigPath"
+		if configPath = os.Getenv(configPathEnvName); len(configPath) > 0 {
+			fmt.Printf("Load config from env var %s: %s", configPathEnvName, configPath)
+			viper.SetConfigFile(configPath)
+		} else {
+			fmt.Println("Load config from default dir")
+
+			ex, _ := os.Executable()
+			exeDir := filepath.Dir(ex)
+			viper.AddConfigPath(exeDir + "/config")
+
+			viper.AddConfigPath("/Users/jeanfo/workspace/jeanfo_mix_api/config")
+			viper.AddConfigPath("/home/jeanfo/workspace/releases/jeanfo_mix_api/config")
+		}
 	} else {
-		fmt.Println("No Specified ConfigDir - Now Search Some Default Dirs...")
-
-		ex, _ := os.Executable()
-		exeDir := filepath.Dir(ex)
-		viper.AddConfigPath(exeDir + "/config")
-
-		viper.AddConfigPath("/Users/jeanfo/workspace/jeanfo_mix_api/config")
-		viper.AddConfigPath("/home/jeanfo/workspace/releases/jeanfo_mix_api/config")
+		fmt.Printf("Load config from specified path: %s\n", configPath)
+		viper.SetConfigFile(configPath)
 	}
 
 	if err := viper.ReadInConfig(); err != nil {

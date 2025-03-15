@@ -39,7 +39,7 @@ const (
 func init() {
 	err := Init()
 	if err != nil {
-		panic("log_util init fail: " + err.Error())
+		panic("Log util init fail: " + err.Error())
 	}
 }
 
@@ -58,9 +58,9 @@ func Init() error {
 		} else if !filepath.IsAbs(logDir) {
 			logDir = filepath.Join(rootDir, logDir)
 		}
-		fmt.Println("init log dir: " + logDir)
+		fmt.Println("Init log dir: " + logDir)
 		if err := os.MkdirAll(logDir, os.ModePerm); err != nil {
-			panic(fmt.Sprintf("create log dir failed: %v", err))
+			panic(fmt.Sprintf("Create log dir failed: %v", err))
 		}
 
 		// 配置日志级别
