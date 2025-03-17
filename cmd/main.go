@@ -1,13 +1,16 @@
 package main
 
 import (
-	"fmt"
+	"flag"
 	"jeanfo_mix/cmd/subcmd"
 	"jeanfo_mix/config"
-	"jeanfo_mix/internal/model"
+	"jeanfo_mix/util/log_util"
+)
 
-	"gorm.io/driver/mysql"
-	"gorm.io/gorm"
+var (
+	configPath string
+	mode       string
+	execCmd    string
 )
 
 //	@title			JEANFO_MIX_API
@@ -23,17 +26,36 @@ import (
 // @contact.url	http://jeanfo.cn
 // @contact.email	jeanf@qq.com
 func main() {
-	cfg := config.GetConfig()
-	dbConfig := cfg.Database
+	flag.StringVar(&configPath, "c", "", "指定配置文件路径")
+	flag.StringVar(&configPath, "config", "", "指定配置文件路径")
+	flag.StringVar(&mode, "m", "web", "启动后台服务类型: web")
+	flag.StringVar(&execCmd, "e", "", "执行子命令")
 
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local",
-		dbConfig.Username, dbConfig.Password, dbConfig.Host, dbConfig.Port, dbConfig.DBName)
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
-	if err != nil {
-		panic(fmt.Sprintf("Failed to connect to database: %v", err))
+	flag.Parse()
+
+	if configPath != "" {
+		config.SetConfigPath(configPath)
 	}
 
-	model.MigrateDB(db)
+	err := log_util.Init()
+	if err != nil {
+		panic("Log init fail: " + err.Error())
+	}
 
-	subcmd.RunWeb(db)
+	//执行子命令
+	if execCmd != "" {
+		switch execCmd {
+
+		}
+		return
+	}
+
+	//后台服务模式
+	switch mode {
+	case "web":
+		subcmd.RunWeb()
+	default:
+		panic("必须指定合法的启动模式或者单独执行子命令")
+	}
+
 }

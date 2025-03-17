@@ -36,13 +36,6 @@ const (
 	FatalLevel
 )
 
-func init() {
-	err := Init()
-	if err != nil {
-		panic("Log util init fail: " + err.Error())
-	}
-}
-
 func Init() error {
 	var err error
 	once.Do(func() {

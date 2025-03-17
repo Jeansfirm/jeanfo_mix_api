@@ -32,10 +32,6 @@ const (
 	SessionTTL              = 7 * 24 * 60 * 60 // seconds
 )
 
-var (
-	RedisClient = util.GetRedisClient()
-)
-
 func genSessionID() string {
 	return uuid.New().String()[24:]
 }
@@ -71,7 +67,7 @@ func (sd *SessionData) save(resetTTL bool) error {
 	}
 
 	ctx := context.Background()
-	err = RedisClient.Set(ctx, redisKey, data, time.Duration(realTTL)*time.Second).Err()
+	err = util.GetRedisClient().Set(ctx, redisKey, data, time.Duration(realTTL)*time.Second).Err()
 	if err != nil {
 		return errors.New("fail to save session data to redis: " + err.Error())
 	}
@@ -83,9 +79,10 @@ func (sd *SessionData) save(resetTTL bool) error {
 
 func (sd *SessionData) Load() error {
 	redisKey := sd.RedisKey()
+	redisClient := util.GetRedisClient()
 
 	ctx := context.Background()
-	data, err := RedisClient.Get(ctx, redisKey).Result()
+	data, err := redisClient.Get(ctx, redisKey).Result()
 	if err != nil {
 		if err == redis.Nil {
 			return errors.New("session不存在或者登录已过期")
@@ -106,7 +103,7 @@ func (sd *SessionData) Load() error {
 
 func (sd *SessionData) Delete() error {
 	ctx := context.Background()
-	err := RedisClient.Del(ctx, sd.RedisKey()).Err()
+	err := util.GetRedisClient().Del(ctx, sd.RedisKey()).Err()
 	if err != nil {
 		return errors.New("redis删除session失败: " + err.Error())
 	}
@@ -122,15 +119,16 @@ func ClearUserSession(userID int) {
 
 func ClearAllSession() error {
 	redisKeyPrefix := SessionKeyPrefix + "-*"
+	redisClient := util.GetRedisClient()
 
 	//使用redis scan命令查找所有符合前缀的keys
 	var cursor uint64
 	ctx := context.Background()
 	for {
-		keys, cursor := RedisClient.Scan(ctx, cursor, redisKeyPrefix, 100).Val()
+		keys, cursor := redisClient.Scan(ctx, cursor, redisKeyPrefix, 100).Val()
 		if len(keys) > 0 {
 			fmt.Println("clearing these session keys: ", keys)
-			_, err := RedisClient.Del(ctx, keys...).Result()
+			_, err := redisClient.Del(ctx, keys...).Result()
 			if err != nil {
 				return err
 			}
