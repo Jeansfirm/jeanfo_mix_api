@@ -19,9 +19,9 @@ import (
 )
 
 var (
-	logger      *zap.Logger
-	errorLogger *zap.Logger
-	once        sync.Once
+	defaultLogger      *zap.Logger
+	defaultErrorLogger *zap.Logger
+	once               sync.Once
 )
 
 type LogLevel zapcore.Level
@@ -35,6 +35,17 @@ const (
 	PanicLevel
 	FatalLevel
 )
+
+func GetLogger() (*zap.Logger, *zap.Logger) {
+	if defaultLogger == nil || defaultErrorLogger == nil {
+		err := Init()
+		if err != nil {
+			panic("Init Log fail: " + err.Error())
+		}
+	}
+
+	return defaultLogger, defaultErrorLogger
+}
 
 func Init() error {
 	var err error
@@ -52,6 +63,7 @@ func Init() error {
 			logDir = filepath.Join(rootDir, logDir)
 		}
 		fmt.Println("Init log dir: " + logDir)
+
 		if err := os.MkdirAll(logDir, os.ModePerm); err != nil {
 			panic(fmt.Sprintf("Create log dir failed: %v", err))
 		}
@@ -82,12 +94,12 @@ func Init() error {
 		}
 
 		// 创建logger
-		logger = zap.New(zapcore.NewTee(cores...), zap.AddCaller(), zap.AddStacktrace(zapcore.ErrorLevel))
-		errorLogger = logger.WithOptions(zap.AddStacktrace(zapcore.PanicLevel))
+		defaultLogger = zap.New(zapcore.NewTee(cores...), zap.AddCaller(), zap.AddStacktrace(zapcore.ErrorLevel))
+		defaultErrorLogger = defaultLogger.WithOptions(zap.AddStacktrace(zapcore.PanicLevel))
 
 		// 替换标准库logger
-		zap.ReplaceGlobals(logger)
-		zap.RedirectStdLog(logger)
+		zap.ReplaceGlobals(defaultLogger)
+		zap.RedirectStdLog(defaultLogger)
 	})
 
 	return err
@@ -198,6 +210,8 @@ func fillCallerInfo(msg string) string {
 func Debug(format string, a ...any) {
 	msg := fmt.Sprintf(format, a...)
 	msg = fillCallerInfo(msg)
+
+	logger, _ := GetLogger()
 	logger.Debug(msg)
 }
 
@@ -205,6 +219,8 @@ func Debug(format string, a ...any) {
 func Info(format string, a ...any) {
 	msg := fmt.Sprintf(format, a...)
 	msg = fillCallerInfo(msg)
+
+	logger, _ := GetLogger()
 	logger.Info(msg)
 }
 
@@ -212,6 +228,8 @@ func Info(format string, a ...any) {
 func Warn(format string, a ...any) {
 	msg := fmt.Sprintf(format, a...)
 	msg = fillCallerInfo(msg)
+
+	logger, _ := GetLogger()
 	logger.Warn(msg)
 }
 
@@ -220,6 +238,8 @@ func Error(format string, a ...any) {
 	msg := fmt.Sprintf(format, a...)
 	msg = fillCallerInfo(msg)
 	// fields = append(fields, zap.String("caller", caller))
+
+	_, errorLogger := GetLogger()
 	errorLogger.Error(msg)
 }
 
@@ -227,6 +247,8 @@ func Error(format string, a ...any) {
 func Panic(format string, a ...any) {
 	msg := fmt.Sprintf(format, a...)
 	msg = fillCallerInfo(msg)
+
+	_, errorLogger := GetLogger()
 	errorLogger.Panic(msg)
 }
 
@@ -234,11 +256,14 @@ func Panic(format string, a ...any) {
 func Fatal(format string, a ...any) {
 	msg := fmt.Sprintf(format, a...)
 	msg = fillCallerInfo(msg)
+
+	_, errorLogger := GetLogger()
 	errorLogger.Fatal(msg)
 }
 
 // Sync 刷新日志缓冲区
 func Sync() {
+	logger, errorLogger := GetLogger()
 	_ = logger.Sync()
 	_ = errorLogger.Sync()
 }

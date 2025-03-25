@@ -1,16 +1,16 @@
 package main
 
 import (
-	"flag"
+	"fmt"
 	"jeanfo_mix/cmd/subcmd"
 	"jeanfo_mix/config"
-	"jeanfo_mix/util/log_util"
+	"os"
+
+	"github.com/spf13/cobra"
 )
 
 var (
 	configPath string
-	mode       string
-	execCmd    string
 )
 
 //	@title			JEANFO_MIX_API
@@ -26,36 +26,22 @@ var (
 // @contact.url	http://jeanfo.cn
 // @contact.email	jeanf@qq.com
 func main() {
-	flag.StringVar(&configPath, "c", "", "指定配置文件路径")
-	flag.StringVar(&configPath, "config", "", "指定配置文件路径")
-	flag.StringVar(&mode, "m", "web", "启动后台服务类型: web")
-	flag.StringVar(&execCmd, "e", "", "执行子命令")
-
-	flag.Parse()
-
-	if configPath != "" {
-		config.SetConfigPath(configPath)
+	rootCmd := &cobra.Command{
+		Use:   "jeanfo mix app",
+		Short: "jeanfo mix app -- short msg",
+		PersistentPreRun: func(cmd *cobra.Command, args []string) {
+			if configPath != "" {
+				config.SetConfigPath(configPath)
+			}
+		},
 	}
+	rootCmd.PersistentFlags().StringVarP(&configPath, "config", "c", "", "Path to config file")
 
-	err := log_util.Init()
-	if err != nil {
-		panic("Log init fail: " + err.Error())
+	rootCmd.AddCommand(subcmd.WebCmd)
+	rootCmd.AddCommand(subcmd.GetKickUserCmd())
+
+	if err := rootCmd.Execute(); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
 	}
-
-	//执行子命令
-	if execCmd != "" {
-		switch execCmd {
-
-		}
-		return
-	}
-
-	//后台服务模式
-	switch mode {
-	case "web":
-		subcmd.RunWeb()
-	default:
-		panic("必须指定合法的启动模式或者单独执行子命令")
-	}
-
 }

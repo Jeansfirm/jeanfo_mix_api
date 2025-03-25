@@ -5,7 +5,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"jeanfo_mix/internal/model"
 	"jeanfo_mix/util"
+	"jeanfo_mix/util/log_util"
 	"time"
 
 	"github.com/go-redis/redis/v8"
@@ -113,8 +115,41 @@ func (sd *SessionData) Delete() error {
 	return nil
 }
 
-func ClearUserSession(userID int) {
-	// redisKeyPrefix := fmt.Sprintf("%s-%d-", SessionKeyPrefix, userID)
+func ClearUserSession(userID int, userName string) error {
+	if userName != "" {
+		DB := model.GetDB()
+
+		var users []*model.User
+		err := DB.Where(&model.User{Username: userName}).Find(&users).Error
+		if err != nil {
+			return err
+		} else if len(users) == 0 {
+			return fmt.Errorf("user: {%s} not found", userName)
+		}
+
+		userID = users[0].ID
+	}
+
+	redkisKeyPrefix := fmt.Sprintf("%s-%d-*", SessionKeyPrefix, userID)
+	redisClient := util.GetRedisClient()
+
+	var cursor uint64
+	ctx := context.Background()
+	for {
+		keys, cursor := redisClient.Scan(ctx, cursor, redkisKeyPrefix, 100).Val()
+		if len(keys) > 0 {
+			log_util.Info("clear %d session of userId:%d:%s", len(keys), userID, userName)
+			_, err := redisClient.Del(ctx, keys...).Result()
+			if err != nil {
+				return err
+			}
+		}
+		if cursor == 0 {
+			break
+		}
+	}
+
+	return nil
 }
 
 func ClearAllSession() error {
