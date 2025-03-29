@@ -4,7 +4,8 @@ PROJECT_NAME_BASE=jeanfo_mix
 PROJECT_NAME=$PROJECT_NAME_BASE-`date "+%Y%m%d%H%M%S"`
 
 BUILD_DIR="build"
-OUTPUT_DIR="$BUILD_DIR/output"
+OUTPUT_SUB_DIR=output
+OUTPUT_DIR="$BUILD_DIR/$OUTPUT_SUB_DIR"
 
 
 echo ">> cleaning old build directory..."
@@ -20,7 +21,7 @@ GOOS=linux GOARCH=amd64 go build -o "$OUTPUT_DIR/$PROJECT_NAME" cmd/main.go
 
 # if real executable file does not exists, make soft_link to newest output
 if [ ! -L "$BUILD_DIR/$PROJECT_NAME_BASE" ];then
-    ln -sF $OUTPUT_DIR/$PROJECT_NAME $BUILD_DIR/$PROJECT_NAME_BASE
+    ln -sF $OUTPUT_SUB_DIR/$PROJECT_NAME $BUILD_DIR/$PROJECT_NAME_BASE
 fi
 
 
