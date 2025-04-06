@@ -87,7 +87,7 @@ func (us *UserService) CreateUser(user *model.User, password string, saveHashedP
 
 	// 验证密码强度
 	if password != DefaultPassword && !util.IsValidPassword(password) {
-		return nil, errors.New("密码必须包含大写、小写字母和数字，长度8-20")
+		return nil, errors.New("密码必须包含字母和数字，长度8-20")
 	}
 
 	// 检查用户名是否已存在

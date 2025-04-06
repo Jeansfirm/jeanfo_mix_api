@@ -2,6 +2,7 @@ package util_test
 
 import (
 	"fmt"
+	auth_service "jeanfo_mix/internal/service/auth"
 	"testing"
 )
 
@@ -11,5 +12,5 @@ func f(num *int) {
 }
 
 func TestT(t *testing.T) {
-	f(nil)
+	fmt.Println(auth_service.HashPassword("073d4c9a9aafdefc4ab2f4b9184a93ba"))
 }
